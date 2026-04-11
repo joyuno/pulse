@@ -1,0 +1,53 @@
+{
+  "fixtureId": "boundary-api-shape",
+  "fixturePath": "fixtures/boundary/api-shape-mismatch.md",
+  "domain": "code",
+  "isCleanBaseline": false,
+  "findings": [
+    {
+      "id": "SHAPE-CRIT-1",
+      "severity": "CRITICAL",
+      "category": "finding",
+      "summary": "API는 { orders: Order[] } 객체 반환, 훅은 Order[] 배열 직접 기대 — 런타임 에러",
+      "keywords": ["orders", "배열", "객체", "감싸", "unwrap", "shape", "mismatch", "타입"],
+      "location": "route.ts:17 + useOrders.ts:17",
+      "explanation": "NextResponse.json({ orders: orders.rows })로 객체에 감싸 반환하지만 useSWR<Order[]>는 배열을 직접 기대함. 실제로는 { orders: [...] }를 받으므로 data.map()이 'data.map is not a function' 에러를 냄."
+    },
+    {
+      "id": "SHAPE-CRIT-2",
+      "severity": "CRITICAL",
+      "category": "finding",
+      "summary": "DB snake_case 필드가 훅의 camelCase 인터페이스와 불일치 — 모든 필드 undefined",
+      "keywords": ["snake_case", "camelCase", "변환", "필드", "order_id", "orderId", "created_at", "camel"],
+      "location": "useOrders.ts:9-14",
+      "explanation": "DB 쿼리는 order_id, user_id, created_at, total_amount, order_status를 반환하지만 Order 인터페이스는 orderId, userId, createdAt, totalAmount, orderStatus를 기대. 변환 레이어 없이는 모든 camelCase 필드가 undefined."
+    },
+    {
+      "id": "SHAPE-MAJ-1",
+      "severity": "MAJOR",
+      "category": "finding",
+      "summary": "PATCH 엔드포인트에 상태 전이 검증 없음 — 역방향 전이 허용",
+      "keywords": ["상태", "전이", "검증", "역방향", "status", "transition", "delivered", "pending"],
+      "location": "route.ts:28-36",
+      "explanation": "PATCH 핸들러가 status 값을 검증 없이 DB에 쓰므로 'delivered' → 'pending' 같은 논리적으로 불가능한 역방향 전이가 허용됨. 유효한 전이 매트릭스 검증 필요."
+    },
+    {
+      "id": "SHAPE-MAJ-2",
+      "severity": "MAJOR",
+      "category": "finding",
+      "summary": "fetchJson 에러 핸들러가 응답 body를 파싱하지 않음 — 에러 메시지 소실",
+      "keywords": ["에러", "body", "파싱", "응답", "fetch", "에러메시지", "HTTP", "throw"],
+      "location": "fetcher.ts:4-6",
+      "explanation": "res.ok가 false일 때 단순히 HTTP 상태 코드만 던지고 응답 body를 읽지 않음. 서버가 { error: 'Insufficient stock', code: 'OUT_OF_STOCK' }를 반환해도 메시지가 소실되어 디버깅 불가."
+    },
+    {
+      "id": "SHAPE-MIN-1",
+      "severity": "MINOR",
+      "category": "finding",
+      "summary": "STATUS_LABELS 키가 DB 실제 값과 불일치 가능 — 뱃지 렌더링 깨짐",
+      "keywords": ["STATUS_LABELS", "status", "뱃지", "badge", "키", "불일치", "undefined", "렌더링"],
+      "location": "OrderStatusBadge.tsx:2-7",
+      "explanation": "DB의 order_status 컬럼이 'in_progress' 같은 값을 반환할 경우 STATUS_LABELS에 키가 없어 undefined 렌더링. 또한 badge-${status} CSS 클래스도 존재하지 않는 클래스를 참조할 수 있음."
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "fixtureId": "live-order-dashboard",
+  "fixturePath": "fixtures/live-app/order-dashboard.md",
+  "domain": "analysis",
+  "isCleanBaseline": false,
+  "findings": [
+    {
+      "id": "LIVE-CRIT-1",
+      "severity": "CRITICAL",
+      "category": "finding",
+      "summary": "배송 처리 버튼 클릭 후 로딩 상태 없음 — 중복 클릭으로 이중 처리 가능",
+      "keywords": ["로딩", "loading", "버튼", "중복", "클릭", "disabled", "처리중", "스피너"],
+      "location": "시나리오 A, 5단계",
+      "explanation": "API 호출 중 버튼이 비활성화되지 않아 운영자가 여러 번 클릭 가능. 낙관적 업데이트나 버튼 disabled 처리 없이 3~5초 대기는 UX와 데이터 정합성 모두 문제. 동일 주문이 여러 번 배송 처리될 수 있음."
+    },
+    {
+      "id": "LIVE-CRIT-2",
+      "severity": "CRITICAL",
+      "category": "finding",
+      "summary": "배송 처리 성공 후 주문 목록이 자동 갱신되지 않음 — 새로고침 필요",
+      "keywords": ["갱신", "새로고침", "목록", "캐시", "invalidate", "revalidate", "SWR", "동기화"],
+      "location": "시나리오 A, 7단계",
+      "explanation": "API 성공 후 SWR 캐시를 무효화하거나 낙관적 업데이트를 적용하지 않아 주문 목록이 이전 상태 유지. 운영자가 새로고침해야만 변경 반영. mutate() 또는 router.refresh() 호출 필요."
+    },
+    {
+      "id": "LIVE-MAJ-1",
+      "severity": "MAJOR",
+      "category": "finding",
+      "summary": "모바일 뷰포트에서 주문 테이블 가로 스크롤 없음 — 컬럼 잘림",
+      "keywords": ["모바일", "테이블", "스크롤", "overflow", "반응형", "잘림", "컬럼", "가로"],
+      "location": "시나리오 B, 2단계",
+      "explanation": "테이블 컨테이너에 overflow-x: auto 미적용. 390px 뷰포트에서 '총액', '상태' 컬럼이 잘려 보이지 않음. 모바일 운영자가 핵심 정보를 확인할 수 없음."
+    },
+    {
+      "id": "LIVE-MAJ-2",
+      "severity": "MAJOR",
+      "category": "finding",
+      "summary": "주문 취소 실패 시 에러 메시지가 구체적이지 않음 — 운영자 혼란",
+      "keywords": ["에러", "메시지", "취소", "실패", "오류", "원인", "안내", "사용자"],
+      "location": "시나리오 C, 4단계",
+      "explanation": "취소 실패 시 '오류가 발생했습니다'만 표시. 실제 이유(이미 배송됨, 정책 위반 등)와 다음 행동 지침이 없어 운영자가 어떻게 해야 할지 모름. API 에러 응답의 message 필드를 UI에 노출해야 함."
+    },
+    {
+      "id": "LIVE-MIN-1",
+      "severity": "MINOR",
+      "category": "finding",
+      "summary": "접근성 속성 누락 — aria-label, 색상 전용 상태 표시, 버튼 컨텍스트 없음",
+      "keywords": ["접근성", "aria", "aria-label", "색맹", "스크린리더", "a11y", "색상", "뱃지"],
+      "location": "시나리오 D, 3단계",
+      "explanation": "주문 테이블에 aria-label 없음. 상태 뱃지가 색상만으로 구분되어 색맹 사용자 접근 불가. '배송 처리' 버튼에 어느 주문인지 aria-describedby 연결 없어 스크린 리더 사용자가 어느 주문을 처리하는지 알 수 없음."
+    }
+  ]
+}

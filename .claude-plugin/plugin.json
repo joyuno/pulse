@@ -1,6 +1,6 @@
 {
   "name": "pulse",
-  "description": "AI-Native Project Loop — AI의 강점을 살린 프로젝트 방법론. 빠른 반복, 점진적 발견, 자동 학습으로 프로젝트를 처음부터 끝까지 진행하는 메타 스킬. Pulse 루프(ASK→EXPLORE→BUILD→VERIFY→LEARN)로 매 사이클마다 작동하는 결과물을 만들고, 소크라테스 인터뷰, 3-Tier QA, 실패 면역, 사용자 프로파일링을 통합한 AI-Native 개발 시스템.",
+  "description": "Question-Driven Development — 올바른 질문이 올바른 제품을 만든다. 기획 단계에서 5-Layer 질문 프레임워크(JTBD + Mom Test + Pre-mortem + 소크라테스)로 당신의 머릿속 아이디어를 정확히 끌어내고, AI가 빠른 반복 루프로 완성도 높은 서비스를 만들어주는 시스템. 비개발자도 자신만의 서비스를 만들 수 있습니다.",
   "version": "0.1.0",
   "author": {
     "name": "joyuno",

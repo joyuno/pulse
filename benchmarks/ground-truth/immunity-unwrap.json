@@ -1,0 +1,35 @@
+{
+  "fixtureId": "immunity-unwrap",
+  "fixturePath": "fixtures/immunity/repeated-unwrap-bug.md",
+  "domain": "analysis",
+  "isCleanBaseline": false,
+  "findings": [
+    {
+      "id": "IMM-CRIT-1",
+      "severity": "CRITICAL",
+      "category": "finding",
+      "summary": "T=3 수정 시 동일 패턴이 다른 곳에 존재함을 언급하지 않음 — 항체 미생성",
+      "keywords": ["항체", "패턴", "동일", "다른", "재발", "예방", "반복", "학습"],
+      "location": "Turn 3 수정 시점",
+      "explanation": "T=3에서 /api/orders의 unwrap 버그를 수정할 때 '이 패턴이 다른 API 라우트에도 적용되는지 확인하라'고 언급하지 않으면 항체가 생성되지 않음. 면역 시스템의 핵심은 개별 수정이 아니라 패턴 인식과 전파."
+    },
+    {
+      "id": "IMM-CRIT-2",
+      "severity": "CRITICAL",
+      "category": "finding",
+      "summary": "T=7에서 /api/products 코드가 T=3에서 수정된 것과 동일한 unwrap 패턴 재발을 감지하지 못함",
+      "keywords": ["재발", "감지", "products", "orders", "동일", "패턴", "unwrap", "{ products"],
+      "location": "Turn 7 코드 검토 시점",
+      "explanation": "T=7의 return NextResponse.json({ products: products.rows })와 useProducts의 useSWR<Product[]>는 T=3에서 수정된 패턴과 완전히 동일. 이를 감지하지 못하면 같은 버그가 프로덕션에 배포됨."
+    },
+    {
+      "id": "IMM-MAJ-1",
+      "severity": "MAJOR",
+      "category": "finding",
+      "summary": "재발 감지 후 올바른 패턴으로 사전 수정하지 않음",
+      "keywords": ["사전", "방지", "수정", "올바른", "패턴", "배열", "반환", "직접"],
+      "location": "Turn 7 구현 단계",
+      "explanation": "재발을 감지했더라도 올바른 패턴(배열 직접 반환 또는 훅의 타입 수정)으로 코드를 제시하지 않으면 면역이 불완전. 경고만 하고 수정하지 않는 것은 50점짜리 면역."
+    }
+  ]
+}

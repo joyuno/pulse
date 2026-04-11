@@ -1,0 +1,16 @@
+{
+  "name": "joyuno-pulse",
+  "owner": {
+    "name": "joyuno",
+    "email": "",
+    "url": "https://github.com/joyuno"
+  },
+  "plugins": [
+    {
+      "name": "pulse",
+      "source": "./",
+      "description": "Question-Driven Development — 올바른 질문이 올바른 제품을 만든다. 5-Layer 질문 프레임워크로 비개발자도 완성도 높은 서비스를 만들 수 있게 해주는 시스템.",
+      "version": "0.1.0"
+    }
+  ]
+}

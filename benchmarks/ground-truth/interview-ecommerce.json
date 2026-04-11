@@ -1,0 +1,98 @@
+{
+  "fixtureId": "interview-ecommerce",
+  "fixturePath": "fixtures/interview/vague-ecommerce.md",
+  "domain": "plan",
+  "isCleanBaseline": false,
+  "findings": [
+    {
+      "id": "INT-WHY-1",
+      "severity": "CRITICAL",
+      "category": "missing_question",
+      "summary": "사업 목적 및 수익 모델을 파악하는 질문 누락",
+      "keywords": ["사업", "목적", "수익", "모델", "이유", "왜", "비즈니스"],
+      "layer": "WHY",
+      "explanation": "직접 판매인지 마켓플레이스인지, 구독인지 단건 결제인지에 따라 결제 시스템과 데이터 모델이 완전히 달라짐. 수익 모델 없이는 DB 스키마도 정할 수 없음."
+    },
+    {
+      "id": "INT-WHY-2",
+      "severity": "MAJOR",
+      "category": "missing_question",
+      "summary": "기존 시스템 교체 여부와 마이그레이션 제약 확인 누락",
+      "keywords": ["기존", "교체", "마이그레이션", "현재", "전환", "레거시"],
+      "layer": "WHY",
+      "explanation": "기존 시스템이 있다면 데이터 마이그레이션, API 하위 호환성, 점진적 전환 전략이 필요. 신규 구축과 완전히 다른 제약이 생김."
+    },
+    {
+      "id": "INT-WHO-1",
+      "severity": "CRITICAL",
+      "category": "missing_question",
+      "summary": "동시 사용자 규모를 파악하는 질문 누락",
+      "keywords": ["동시", "사용자", "규모", "트래픽", "몇 명", "얼마나", "DAU", "MAU"],
+      "layer": "WHO",
+      "explanation": "예상 동시 사용자 수에 따라 아키텍처가 완전히 달라짐 (SQLite vs PostgreSQL vs 분산 DB, 단일 서버 vs 로드밸런서). 100명 규모와 100만 명 규모는 완전히 다른 시스템."
+    },
+    {
+      "id": "INT-WHO-2",
+      "severity": "MAJOR",
+      "category": "missing_question",
+      "summary": "B2C vs B2B, 국내 vs 글로벌 타겟 확인 누락",
+      "keywords": ["B2C", "B2B", "국내", "글로벌", "해외", "기업", "소비자", "지역"],
+      "layer": "WHO",
+      "explanation": "B2B면 대량 구매, 기업 청구서, 승인 워크플로우 필요. 글로벌이면 다국어, 다통화, 국제 배송, 세금 처리가 필요. 초기 결정이 전체 스키마에 영향."
+    },
+    {
+      "id": "INT-WHAT-1",
+      "severity": "CRITICAL",
+      "category": "missing_question",
+      "summary": "MVP 범위 정의 질문 누락 (장바구니? 결제? 재고?)",
+      "keywords": ["MVP", "범위", "기능", "최소", "필수", "장바구니", "결제", "재고"],
+      "layer": "WHAT",
+      "explanation": "쇼핑몰의 범위는 상품 목록만 있는 카탈로그부터 결제, 배송, 재고, 리뷰, 추천까지 매우 다양. MVP 범위 없이는 개발 기간 예측 불가."
+    },
+    {
+      "id": "INT-WHAT-2",
+      "severity": "MAJOR",
+      "category": "missing_question",
+      "summary": "모바일 앱 필요 여부 및 플랫폼 범위 확인 누락",
+      "keywords": ["모바일", "앱", "플랫폼", "iOS", "Android", "웹앱", "PWA", "네이티브"],
+      "layer": "WHAT",
+      "explanation": "모바일 네이티브 앱이 필요하면 React Native/Flutter 고려, PWA로 충분하면 웹만으로 가능. 이 결정이 프론트엔드 기술 스택 전체를 좌우함."
+    },
+    {
+      "id": "INT-HOW-1",
+      "severity": "CRITICAL",
+      "category": "missing_question",
+      "summary": "결제 수단 및 PG사 요구사항 확인 누락",
+      "keywords": ["결제", "PG", "카드", "간편결제", "가상계좌", "카카오페이", "토스", "결제수단"],
+      "layer": "HOW",
+      "explanation": "결제 수단에 따라 PG사 선택, 정산 주기, 취소/환불 정책, PCI-DSS 준수 요건이 달라짐. 결제 시스템은 나중에 바꾸기 매우 어려운 핵심 인프라."
+    },
+    {
+      "id": "INT-HOW-2",
+      "severity": "MAJOR",
+      "category": "missing_question",
+      "summary": "기존 ERP/물류 시스템 연동 여부 확인 누락",
+      "keywords": ["ERP", "물류", "연동", "시스템", "재고", "배송", "통합", "API"],
+      "layer": "HOW",
+      "explanation": "기존 ERP나 물류 시스템이 있다면 API 연동 설계가 필요. 없다면 재고 관리와 배송 추적을 직접 구현해야 함. 범위와 복잡도가 크게 달라짐."
+    },
+    {
+      "id": "INT-MEASURE-1",
+      "severity": "MAJOR",
+      "category": "missing_question",
+      "summary": "성공 기준 및 KPI 정의 질문 누락",
+      "keywords": ["성공", "KPI", "지표", "목표", "전환율", "매출", "기준", "측정"],
+      "layer": "MEASURE",
+      "explanation": "성공 기준이 없으면 어떤 기능을 먼저 만들어야 하는지, 어느 수준의 성능이 충분한지 판단할 수 없음. '쇼핑몰 완성'이라는 목표는 측정 불가."
+    },
+    {
+      "id": "INT-MEASURE-2",
+      "severity": "MAJOR",
+      "category": "missing_question",
+      "summary": "성능 목표 및 가용성 요구사항 확인 누락",
+      "keywords": ["성능", "응답시간", "가용성", "SLA", "업타임", "속도", "latency"],
+      "layer": "MEASURE",
+      "explanation": "응답시간 목표(예: p99 < 200ms)와 가용성 목표(예: 99.9%)에 따라 캐싱 전략, CDN 사용, DB 레플리카 구성이 달라짐. 정의 없이는 적절한 인프라 설계 불가."
+    }
+  ]
+}

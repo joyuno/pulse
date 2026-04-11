@@ -1,0 +1,44 @@
+{
+  "fixtureId": "boundary-route-prefix",
+  "fixturePath": "fixtures/boundary/route-prefix-missing.md",
+  "domain": "code",
+  "isCleanBaseline": false,
+  "findings": [
+    {
+      "id": "ROUTE-CRIT-1",
+      "severity": "CRITICAL",
+      "category": "finding",
+      "summary": "Link href에 Route Group (dashboard) 접두사 포함 — 404 오류",
+      "keywords": ["dashboard", "Link", "href", "Route Group", "404", "괄호", "경로", "그룹"],
+      "location": "orders/page.tsx:8-9",
+      "explanation": "Next.js Route Group 폴더 (dashboard)는 URL에 포함되지 않음. href='/(dashboard)/products'는 존재하지 않는 경로로 항상 404. 올바른 경로는 /products."
+    },
+    {
+      "id": "ROUTE-CRIT-2",
+      "severity": "CRITICAL",
+      "category": "finding",
+      "summary": "router.push('/auth/login') — 존재하지 않는 경로, 올바른 경로는 /login",
+      "keywords": ["router.push", "auth", "login", "경로", "존재하지 않는", "로그아웃", "redirect"],
+      "location": "layout.tsx:12",
+      "explanation": "(auth) Route Group도 URL에 포함되지 않음. /auth/login 경로는 존재하지 않으며 로그아웃 후 항상 404 페이지로 이동. 올바른 경로는 /login."
+    },
+    {
+      "id": "ROUTE-MAJ-1",
+      "severity": "MAJOR",
+      "category": "finding",
+      "summary": "redirect('/dashboard/orders') — /orders이어야 함",
+      "keywords": ["redirect", "dashboard", "orders", "customers", "경로", "잘못된"],
+      "location": "customers/page.tsx:7",
+      "explanation": "/dashboard 세그먼트는 실제 URL 경로에 존재하지 않음. redirect('/dashboard/orders')는 404. 올바른 경로는 /orders."
+    },
+    {
+      "id": "ROUTE-MAJ-2",
+      "severity": "MAJOR",
+      "category": "finding",
+      "summary": "middleware matcher가 존재하지 않는 /dashboard/* 경로를 보호",
+      "keywords": ["middleware", "matcher", "보호", "인증", "protected", "dashboard", "경로"],
+      "location": "middleware.ts:12-21",
+      "explanation": "middleware의 matcher가 '/dashboard/:path*'를 대상으로 하지만 실제 대시보드 페이지는 /orders, /products, /customers 경로. 결과적으로 인증이 전혀 작동하지 않아 로그인 없이 모든 대시보드 페이지 접근 가능."
+    }
+  ]
+}

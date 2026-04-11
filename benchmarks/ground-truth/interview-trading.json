@@ -1,0 +1,80 @@
+{
+  "fixtureId": "interview-trading",
+  "fixturePath": "fixtures/interview/vague-trading.md",
+  "domain": "plan",
+  "isCleanBaseline": false,
+  "findings": [
+    {
+      "id": "TRD-STRAT-1",
+      "severity": "CRITICAL",
+      "category": "missing_question",
+      "summary": "매매 전략 유형 확인 없이 구현 불가 (추세추종? 차익거래? 마켓메이킹?)",
+      "keywords": ["전략", "추세추종", "평균회귀", "차익거래", "마켓메이킹", "매매방식", "알고리즘"],
+      "layer": "STRATEGY",
+      "explanation": "전략 유형에 따라 아키텍처가 완전히 달라짐. HFT는 마이크로초 레이턴시가 필요하고, 포지션 트레이딩은 일간 데이터로 충분. 이 질문 없이는 코드 한 줄도 쓸 수 없음."
+    },
+    {
+      "id": "TRD-STRAT-2",
+      "severity": "CRITICAL",
+      "category": "missing_question",
+      "summary": "매매 주기(타임프레임) 미확인 — HFT와 스윙은 완전히 다른 시스템",
+      "keywords": ["타임프레임", "주기", "단타", "스윙", "일중", "HFT", "초", "분", "일봉"],
+      "layer": "STRATEGY",
+      "explanation": "초단타(HFT)는 전용 서버 코로케이션, WebSocket 실시간 틱, 주문 레이턴시 최적화 필요. 일봉 스윙은 배치 처리로 충분. 2개 이상 차이나는 타임프레임 선택 시 재구현 비용 100%."
+    },
+    {
+      "id": "TRD-ASSET-1",
+      "severity": "CRITICAL",
+      "category": "missing_question",
+      "summary": "거래 자산 클래스 미확인 — 주식/코인/선물/외환은 규제와 API가 다름",
+      "keywords": ["자산", "주식", "코인", "암호화폐", "선물", "외환", "FX", "ETF", "종목"],
+      "layer": "ASSET",
+      "explanation": "자산 클래스마다 거래소 API, 주문 유형, 정산 방식, 규제 요건이 다름. 국내 주식은 KIS/NH API, 코인은 업비트/바이낸스 API, 외환은 MT4/OANDA API 사용. 잘못 선택하면 전면 재작성."
+    },
+    {
+      "id": "TRD-EXCHANGE-1",
+      "severity": "CRITICAL",
+      "category": "missing_question",
+      "summary": "거래소/브로커 미확인 — API 방식과 수수료 구조가 완전히 다름",
+      "keywords": ["거래소", "브로커", "업비트", "바이낸스", "한국투자증권", "키움", "API", "수수료"],
+      "layer": "EXCHANGE",
+      "explanation": "거래소마다 API 인터페이스(REST vs WebSocket vs FIX), 주문 유형, 수수료 구조, API 호출 제한이 다름. 거래소 미확정 상태에서 구현하면 나중에 전면 교체 필요."
+    },
+    {
+      "id": "TRD-RISK-1",
+      "severity": "CRITICAL",
+      "category": "missing_question",
+      "summary": "최대 손실 한도 및 리스크 관리 규칙 미정의",
+      "keywords": ["리스크", "손실", "한도", "스탑로스", "드로우다운", "포지션", "레버리지", "마진"],
+      "layer": "RISK",
+      "explanation": "리스크 관리 없는 자동매매 봇은 무제한 손실 가능. 최대 일일 손실, 최대 포지션 크기, 레버리지 한도를 정의하지 않으면 계좌 전액 손실 위험. 이 질문이 가장 중요한 의사결정."
+    },
+    {
+      "id": "TRD-RISK-2",
+      "severity": "MAJOR",
+      "category": "missing_question",
+      "summary": "실계좌 vs 모의투자 확인 누락 — 개발 초기부터 환경 분리 필요",
+      "keywords": ["실계좌", "모의투자", "페이퍼트레이딩", "백테스트", "시뮬레이션", "테스트", "환경"],
+      "layer": "RISK",
+      "explanation": "실계좌 연결 상태에서 버그 발생 시 실제 손실. 개발 초기에 모의투자 환경 분리와 킬스위치 설계 필수. 또한 백테스트 기간과 데이터 요건도 확인 필요."
+    },
+    {
+      "id": "TRD-INFRA-1",
+      "severity": "MAJOR",
+      "category": "missing_question",
+      "summary": "24/7 운영 환경 및 레이턴시 요구사항 미확인",
+      "keywords": ["서버", "24시간", "운영", "클라우드", "레이턴시", "코로케이션", "인프라", "호스팅"],
+      "layer": "INFRA",
+      "explanation": "로컬 PC 실행은 인터넷 끊김, 전원 차단 시 봇 중단. 24/7 운영이라면 VPS 또는 클라우드 필요. HFT라면 거래소 코로케이션 고려. 인프라 선택이 전략 가능 범위를 제한."
+    },
+    {
+      "id": "TRD-COMPLIANCE-1",
+      "severity": "MAJOR",
+      "category": "missing_question",
+      "summary": "알고리즘 트레이딩 규제 요건 확인 누락",
+      "keywords": ["규제", "라이선스", "법", "준법", "신고", "알고리즘트레이딩", "금감원", "컴플라이언스"],
+      "layer": "COMPLIANCE",
+      "explanation": "국내 주식 알고리즘 트레이딩은 일정 규모 이상 시 금감원 신고 의무. 코인은 규제 공백이지만 세금 신고 의무. 규제 요건 미확인 시 추후 법적 리스크 발생 가능."
+    }
+  ]
+}

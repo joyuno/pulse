@@ -1,38 +1,230 @@
-# Pulse Benchmarks
+# Pulse 벤치마크 — OMC Ground Truth 방식
 
-Pulse의 성능을 측정하고, 스킬 유무에 따른 차이를 정량적으로 평가하는 벤치마크 프레임워크.
+Pulse 플러그인의 4가지 핵심 능력을 자동 채점하는 벤치마크 스위트입니다.
+OMC(oh-my-claudecode)의 harsh-critic 벤치마크 방식을 Pulse 도메인에 맞게 포팅했습니다.
 
-## 평가 차원
+---
 
-| 차원 | 측정 항목 | 측정 방법 |
-|------|----------|----------|
-| **질문 품질** | 인터뷰 질문의 전문성과 구체성 | 스코어카드 자동 평가 |
-| **설계 정확도** | 답변→아키텍처 매핑의 적합성 | 전문가 리뷰 |
-| **구현 속도** | Pulse 수, 총 소요 시간 | 자동 측정 |
-| **QA 발견율** | 버그 발견 수 / 총 버그 수 | Tier별 집계 |
-| **컨텍스트 효율** | 사용 토큰 대비 산출물 품질 | 토큰/품질 비율 |
-| **학습 효과** | 세션 간 동일 버그 재발율 | 항체 추적 |
+## 개요
 
-## 벤치마크 시나리오
+### 평가 차원
 
-### Scenario 1~5: 도메인별 대표 프로젝트
+| 차원 | 설명 | Fixture 수 |
+|------|------|-----------|
+| **인터뷰 품질** (interview) | 모호한 요청에 대해 핵심 의사결정 질문을 얼마나 잘 하는가 | 2 |
+| **경계면 QA** (boundary) | API↔훅 shape 불일치, 라우팅 오류 등 경계면 버그를 찾는가 | 2 |
+| **Live QA** (live-app) | 실제 앱 유저 저니에서 숨겨진 UI/UX 버그를 발견하는가 | 1 |
+| **면역 시스템** (immunity) | 한 번 고친 버그 패턴이 다른 곳에서 반복될 때 사전 방지하는가 | 1 |
 
-각 시나리오에 대해:
-- **With Pulse**: Pulse 루프로 프로젝트 진행
-- **Without Pulse (baseline)**: 동일 프롬프트를 Pulse 없이 진행
-- 비교 항목: 산출물 품질, 소요 시간, 토큰 사용량, 버그 수
+### 핵심 설계 원칙
 
-상세: `scenarios/` 디렉토리 참조
+1. **Fixture**: 의도적 결함이 심어진 입력물 (모호한 요청, 버그 있는 코드, 시나리오)
+2. **Ground Truth**: 각 결함에 대한 정답 JSON (키워드 + 심각도)
+3. **Scorer**: 키워드 매칭 기반 자동 채점 (`scoring/scorer.py`)
+4. **Runner**: 자동 실행 파이프라인 (`run-benchmark.sh`)
+
+---
 
 ## 실행 방법
 
-```shell
-# 각 시나리오의 프롬프트를 Claude Code에 입력
-# With Pulse: 플러그인 설치 상태에서 실행
-# Without Pulse: 플러그인 제거 후 동일 프롬프트 실행
-# 결과를 results/ 디렉토리에 기록
+### 요구사항
+
+```bash
+# Python 3.9+
+python --version
+
+# Claude CLI (claude -p 명령어 필요)
+claude --version
+
+# ANTHROPIC_API_KEY 환경변수
+export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-## 채점 기준
+### 기본 실행
 
-`evaluation-rubric.md` 참조
+```bash
+cd /path/to/pulse/benchmarks
+
+# 전체 벤치마크 실행 (Pulse 적용)
+./run-benchmark.sh --with-pulse
+
+# 특정 차원만 실행
+./run-benchmark.sh --dimension interview
+./run-benchmark.sh --dimension boundary
+
+# 특정 fixture만 실행
+./run-benchmark.sh --fixture interview-ecommerce
+
+# Pulse 없이 실행 (baseline 측정)
+./run-benchmark.sh --without-pulse
+
+# 양쪽 비교
+./run-benchmark.sh --compare
+
+# 베이스라인 저장
+./run-benchmark.sh --with-pulse --save-baseline
+```
+
+### 결과 확인
+
+```bash
+# 최신 결과 확인
+cat results/report.md
+
+# JSON 결과 확인
+cat results/results.json
+
+# 베이스라인 비교
+./run-benchmark.sh --compare
+```
+
+---
+
+## 채점 알고리즘
+
+### 키워드 매칭
+
+각 Ground Truth finding은 `keywords` 배열을 갖습니다. 에이전트 출력에서 해당 키워드가
+몇 개나 등장하는지 세어 매칭 여부를 결정합니다.
+
+```
+기본 임계값: MIN_KEYWORD_MATCHES = 2
+동적 임계값: 키워드가 6개 이상이면 40% 비례 (6개→3개, 10개→4개)
+```
+
+#### 텍스트 정규화
+
+```
+1. lowercase 변환
+2. NFKC 유니코드 정규화 (한글 자모 분리 방지)
+3. 구두점·분리자 → 공백 (` * _ # ( ) [ ] { } < > " ' . , ; ! ? | \ `)
+4. 하이픈·슬래시·콜론 연속 → 공백
+5. 연속 공백 → 단일 공백
+```
+
+#### 구(phrase) 폴백
+
+멀티토큰 키워드(예: "동시 사용자")는 직접 포함 여부를 먼저 확인하고,
+실패 시 모든 토큰이 순서 무관하게 존재하면 매칭으로 인정합니다.
+
+### 심각도 인접성
+
+`ALLOW_ADJACENT_SEVERITY = true` 설정 시:
+- CRITICAL ↔ MAJOR: 허용
+- MAJOR ↔ MINOR: 허용
+- CRITICAL ↔ MINOR: 불허 (거리 2)
+
+### 메트릭 계산
+
+| 메트릭 | 계산 방법 | 가중치 |
+|--------|----------|--------|
+| `true_positive_rate` | 매칭된 GT / 전체 GT | 0.30 |
+| `false_negative_penalty` | (1 - 놓친 GT / 전체 GT) | 0.25 |
+| `spurious_penalty` | (1 - 불필요 findings / 전체 findings) | 0.15 |
+| `coverage_bonus` | 차원별 커버리지 | 0.15 |
+| `evidence_rate` | 증거 포함 비율 | 0.15 |
+
+**Composite Score** = 위 메트릭의 가중 합산 (0~100점)
+
+---
+
+## 베이스라인 관리
+
+### 베이스라인 저장
+
+```bash
+# Pulse 적용 결과를 베이스라인으로 저장
+./run-benchmark.sh --with-pulse --save-baseline
+
+# 저장 위치: baselines/baseline_YYYY-MM-DD.json
+```
+
+### 베이스라인 비교
+
+```bash
+./run-benchmark.sh --compare
+# 결과에 delta 컬럼 추가: +/- 변화량, 회귀(±1% 이상 하락) 경고
+```
+
+### 회귀 감지 임계값
+
+- 종합 점수 ±1% 이상 변화 시 경고 표시
+- CRITICAL finding 놓친 경우 즉시 경고
+- 차원별 점수도 개별 추적
+
+---
+
+## With-Pulse vs Without-Pulse 비교
+
+`--compare` 모드는 동일 fixture를 두 가지 모드로 실행하고 head-to-head 비교를 생성합니다.
+
+```
+fixture: vague-ecommerce
+  with-pulse:    composite=82.3%  tp=90%  fn=10%
+  without-pulse: composite=41.5%  tp=35%  fn=65%
+  delta:         +40.8%  ← Pulse 효과
+```
+
+---
+
+## 비용 예상
+
+| 모드 | fixture 수 | 예상 토큰 | 예상 비용 |
+|------|-----------|----------|---------|
+| `--dimension interview` | 2 | ~8K | ~$0.05 |
+| `--dimension boundary` | 2 | ~6K | ~$0.04 |
+| `--with-pulse` (전체) | 6 | ~30K | ~$0.20 |
+| `--compare` (전체) | 6×2 | ~60K | ~$0.40 |
+
+_claude-sonnet 기준. opus 사용 시 5× 비용 예상._
+
+---
+
+## 디렉토리 구조
+
+```
+benchmarks/
+├── README.md                     # 이 파일
+├── run-benchmark.sh              # 메인 실행 스크립트
+├── scoring/
+│   ├── scorer.py                 # 키워드 매칭 채점기
+│   └── reporter.py               # 마크다운 보고서 생성기
+├── fixtures/
+│   ├── interview/                # 인터뷰 품질 측정
+│   │   ├── vague-ecommerce.md    # 모호한 쇼핑몰 요청
+│   │   └── vague-trading.md      # 모호한 퀀트 요청
+│   ├── boundary/                 # 경계면 QA 측정
+│   │   ├── api-shape-mismatch.md # API↔훅 shape 불일치
+│   │   └── route-prefix-missing.md
+│   ├── live-app/                 # Live QA 측정
+│   │   └── order-dashboard.md    # 주문 대시보드 유저 저니
+│   └── immunity/                 # 면역 시스템 측정
+│       └── repeated-unwrap-bug.md
+├── ground-truth/
+│   ├── interview-ecommerce.json
+│   ├── interview-trading.json
+│   ├── boundary-api-shape.json
+│   ├── boundary-route-prefix.json
+│   ├── live-order-dashboard.json
+│   └── immunity-unwrap.json
+├── baselines/                    # 저장된 베이스라인 결과
+└── results/                      # 벤치마크 실행 결과
+```
+
+---
+
+## Ground Truth 기여 가이드
+
+새 fixture를 추가하려면:
+
+1. `fixtures/{dimension}/` 에 `.md` 파일 작성 — 의도적 결함 포함
+2. `ground-truth/{fixture-id}.json` 작성 — 각 결함의 키워드와 심각도 정의
+3. `./run-benchmark.sh --fixture {fixture-id} --dry-run` 으로 파이프라인 검증
+4. 실제 실행 후 scorer 출력으로 ground truth 키워드 조정
+
+### Ground Truth finding 작성 원칙
+
+- `keywords`는 6~8개 권장 (너무 적으면 false positive, 너무 많으면 false negative)
+- 한국어·영어 혼용 가능 (정규화가 양쪽 처리)
+- `explanation`은 "왜 이것이 문제인가"를 서술 (채점에 사용되지 않지만 문서화 목적)
+- `location`은 파일:섹션 형식으로 가능하면 명시

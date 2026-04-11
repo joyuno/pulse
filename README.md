@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/⚡_PULSE-AI--Native_Project_Loop-blueviolet?style=for-the-badge&labelColor=1a1a2e&color=7B2FF7&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMiAxMmgtNGwtMyA5TDkgM2wtMyA5SDIiLz48L3N2Zz4=" />
-    <img alt="Pulse Banner" src="https://img.shields.io/badge/⚡_PULSE-AI--Native_Project_Loop-blueviolet?style=for-the-badge&labelColor=1a1a2e&color=7B2FF7&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMiAxMmgtNGwtMyA5TDkgM2wtMyA5SDIiLz48L3N2Zz4=" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/⚡_PULSE-Right_Questions,_Right_Products-blueviolet?style=for-the-badge&labelColor=1a1a2e&color=7B2FF7&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMiAxMmgtNGwtMyA5TDkgM2wtMyA5SDIiLz48L3N2Zz4=" />
+    <img alt="Pulse Banner" src="https://img.shields.io/badge/⚡_PULSE-Right_Questions,_Right_Products-blueviolet?style=for-the-badge&labelColor=1a1a2e&color=7B2FF7&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMiAxMmgtNGwtMyA5TDkgM2wtMyA5SDIiLz48L3N2Zz4=" />
   </picture>
 </p>
 
@@ -16,35 +16,47 @@
 </p>
 
 <p align="center">
-  <b>Stop planning like humans. Start building like AI.</b>
+  <b>올바른 질문이 올바른 제품을 만든다.</b><br>
+  <sub>Right questions, right products.</sub>
 </p>
 
 ---
 
 # Pulse
 
-**AI-Native Project Loop** — A Claude Code Plugin
+**Question-Driven Development** — A Claude Code Plugin
 
 **한국어** | [English (coming soon)]()
 
-인간 중심 방법론(기획→설계→개발→테스트)이 아닌, **AI의 강점을 살린 빠른 반복 루프**로 프로젝트를 처음부터 끝까지 진행하는 메타 스킬.
+코드를 잘 짜는 건 AI가 합니다. 하지만 **"무엇을 만들어야 하는가"는 여전히 사람의 머릿속에 있습니다.**
+
+Pulse는 처음 기획 단계에서 **올바른 질문을 던져서**, 개발 경험이 없는 사람도 자신의 아이디어를 완성도 높은 서비스로 만들 수 있게 해주는 질문 프레임워크입니다.
 
 ## Why Pulse?
 
-현재 모든 프로젝트 방법론은 **인간의 제약**을 기반으로 설계되어 있습니다.
+AI가 아무리 뛰어나도, **질문이 잘못되면 결과도 잘못됩니다.**
 
 ```
-인간 방식:  한 번에 잘 만들려고 한다 (실패 비용이 높으니까)
-           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━→ 완성
-           기획(2주) → 설계(2주) → 개발(4주) → QA(1주)
+질문 없이:  "쇼핑몰 만들어줘"
+            → AI가 알아서 만듦 → 내가 원하던 게 아님 → 처음부터 다시
 
-Pulse 방식: 빠르게 많이 시도한다 (실패 비용이 거의 없으니까)
+질문과 함께: "누가 쓰나? 핵심 문제가 뭔가? 성공 기준은?"
+            → 내가 진짜 원하는 게 명확해짐 → AI가 정확히 만듦 → 완성
+```
+
+> 문제는 AI의 능력이 아닙니다. **당신의 머릿속에 있는 것을 꺼내는 과정**이 빠져 있었을 뿐입니다.
+
+Pulse는 JTBD(Jobs-to-Be-Done), Mom Test, Pre-mortem, 소크라테스 대화법을 결합한 **5-Layer 질문 프레임워크**로, 기획 단계에서 올바른 의사결정을 유도합니다. 질문이 끝나면, AI가 빠른 반복 루프로 실제 서비스를 만듭니다.
+
+```
+Pulse = 올바른 질문(ASK) + 빠른 반복(EXPLORE → BUILD → VERIFY → LEARN)
+
            ┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃→ 완성
            각 ┃ = 하나의 Pulse (수분~수십분)
            매 Pulse마다 "질문 → 시도 → 검증 → 학습"
 ```
 
-> 9주짜리 인간 프로젝트 = **15~25 Pulse** = **3~8시간**
+> 9주짜리 기존 프로젝트 = **15~25 Pulse** = **3~8시간**
 
 ---
 
@@ -396,8 +408,8 @@ pulse/
 
 |  | Harness | OMC | **Pulse** |
 |---|---------|-----|-----------|
-| **본질** | 팀을 만든다 | 팀을 굴린다 | **AI답게 프로젝트를 한다** |
-| **관점** | 인간 팀 모방 | 인간 워크플로우 | **AI-Native** |
+| **본질** | 팀을 만든다 | 팀을 굴린다 | **올바른 질문으로 제품을 만든다** |
+| **관점** | 인간 팀 모방 | 인간 워크플로우 | **Question-Driven** |
 | **시간 단위** | Phase (시간~일) | Task (분~시간) | **Pulse (분)** |
 | **설계** | 사전 전체 설계 | 계획→실행 | **점진적 발견** |
 | **QA 시점** | 완성 후 | 완성 후 | **매 Pulse** |
