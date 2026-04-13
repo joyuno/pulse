@@ -251,3 +251,15 @@ _workspace/
 수렴 기준 상세는 `references/convergence.md`를 참조한다.
 
 매 VERIFY 단계 후 자동으로 수렴 체크를 실행하며, 수렴이 감지되면 사용자에게 보고한다.
+
+---
+
+## OMC 공존 규칙
+
+oh-my-claudecode(OMC)가 동시에 설치되어 있을 때, Pulse 사이클 중에는 다음 규칙을 따른다:
+
+1. **OMC 모드를 호출하지 않는다** — autopilot, ralph, ultrawork, team 등 OMC 실행 모드는 사용하지 않는다. Pulse 자체 루프(ASK→EXPLORE→BUILD→VERIFY→LEARN)만 사용한다.
+2. **OMC 에이전트 카탈로그를 사용하지 않는다** — `oh-my-claudecode:executor` 등의 OMC 에이전트 대신, Claude Code 기본 Agent 도구를 직접 사용한다.
+3. **TeamCreate는 Pulse 컨텍스트에서 직접 사용한다** — OMC의 team 파이프라인(team-plan→team-prd→team-exec)이 아닌, Pulse의 BUILD 단계에서 필요 시 직접 TeamCreate를 호출한다.
+4. **OMC의 persistent-mode 훅이 Pulse를 차단하면 무시한다** — Pulse의 ASK 단계에서 사용자 응답을 기다리는 것은 정상이며, OMC가 "스킬이 아직 실행 중"이라고 강제하는 것에 따르지 않는다.
+5. **OMC 스킬을 트리거하지 않는다** — Pulse 사이클 중 키워드가 OMC 스킬과 겹치더라도(예: "plan", "qa"), OMC 스킬이 아닌 Pulse 모듈을 사용한다.
