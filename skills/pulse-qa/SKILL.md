@@ -73,22 +73,53 @@ _workspace/contracts/README.md에 해당 타입의 계약서가 등록되어 있
 → 없으면: 계약서 누락 경고 발행 후 BUILD-CONTRACT 단계로 되돌아감
 ```
 
+**2단계 추가: 하드코딩 상수 불일치 탐지**
+
+Constants Contract가 있으면, 계약서에 정의된 값이 구현 코드에서 다른 값으로 하드코딩되어 있는지 확인한다.
+
+```bash
+# 예시: PASSWORD_MIN_LENGTH: 8 인데 코드에서 6이 쓰이는지
+grep -rn "minLength.*6\|min_length.*6\|password.*length.*6" [대상 파일들]
+```
+
+불일치 발견 시 즉시 Constants Contract 기반으로 코드를 수정한다.
+
+**3단계 추가: 의존성 버전 불일치 탐지**
+
+Dependency Contract가 있으면, 계약서에 고정된 버전과 실제 잠금 파일을 비교한다.
+
+```bash
+# requirements.txt와 Dependency Contract 버전 비교
+grep "bcrypt\|passlib\|sqlalchemy" requirements.txt
+# docker-compose.yml 환경변수 키와 config.py의 os.getenv 키 비교
+grep "POSTGRES_" docker-compose.yml
+grep "os.getenv" config.py
+```
+
 ### 계약서 누락 경고 형식
 
 ```
 ⚠️  계약 커버리지 경고
 
-누락된 계약서:
+[타입 누락]
 - PersonalityTraitData (profile_setup_screen.dart → personality_toggle.dart)
-- [타입명] ([정의 파일] → [사용 파일])
 
-조치: BUILD-CONTRACT 단계로 돌아가 계약서를 먼저 작성하십시오.
+[상수 불일치]
+- PASSWORD_MIN_LENGTH: 계약서=8, 프론트=6, 백엔드=8 → 프론트 수정 필요
+
+[의존성 불일치]
+- bcrypt: 계약서=4.0.1, requirements.txt=4.1.2 → 버전 충돌 가능
+
+조치: BUILD-CONTRACT 단계로 돌아가 계약서를 먼저 수정하거나
+      계약서 기준으로 코드를 수정하십시오.
 에이전트 재스폰은 계약서 확정 후에만 허용됩니다.
 ```
 
 ### Tier 0 통과 조건
 
-이번 Pulse에서 생성·수정한 파일 간 공유 타입 전부에 대해 `_workspace/contracts/`에 계약서가 존재할 때.
+1. 공유 타입 전부에 계약서 존재
+2. Constants Contract의 값이 구현 코드와 일치
+3. Dependency Contract의 버전이 잠금 파일과 일치
 
 ---
 

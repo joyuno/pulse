@@ -1,6 +1,6 @@
 ---
 name: pulse-contracts
-description: "인터페이스 계약 시스템. 에이전트 간 경계면에서 전체 코드가 아닌 최소 계약서만 교환하여 컨텍스트를 절약. 5종 계약서(type/behavior/visual/performance/security) 생성 및 검증. Pulse의 BUILD 단계에서 호출. '계약', 'contract', '인터페이스', '경계면', 'API 정의' 시 사용."
+description: "인터페이스 계약 시스템. 에이전트 간 경계면에서 전체 코드가 아닌 최소 계약서만 교환하여 컨텍스트를 절약. 7종 계약서(type/behavior/visual/performance/security/constants/dependency) 생성 및 검증. Pulse의 BUILD 단계에서 호출. '계약', 'contract', '인터페이스', '경계면', 'API 정의' 시 사용."
 ---
 
 # pulse-contracts: 인터페이스 계약 시스템
@@ -22,7 +22,7 @@ description: "인터페이스 계약 시스템. 에이전트 간 경계면에서
 
 ---
 
-## 5종 계약서 유형
+## 7종 계약서 유형
 
 ### 1. Type Contract (타입 계약)
 
@@ -120,6 +120,106 @@ description: "인터페이스 계약 시스템. 에이전트 간 경계면에서
 
 ---
 
+### 6. Constants Contract (상수 계약)
+
+**용도**: 검증 규칙·비즈니스 상수처럼 **여러 레이어에서 동일한 값**을 써야 하는 것의 단일 진실 공급원(SSOT)
+
+**언제 생성**:
+- 프론트엔드와 백엔드가 같은 검증 규칙을 공유할 때 (최소 길이, 최대 횟수 등)
+- 같은 상수가 2개 이상의 파일에 등장할 때
+- 환경변수 키 이름이 여러 파일에서 참조될 때
+
+**담는 내용**:
+- 입력 검증 상수 (최소/최대 길이, 허용 형식, 정규표현식)
+- Rate Limit 수치 (IP당 분당 N회 등)
+- 비즈니스 규칙 상수 (만료 시간, 페이지 크기 등)
+- 에러 코드/메시지 매핑
+
+**핵심 규칙**: 이 계약서에 정의된 값을 에이전트가 코드 안에서 다시 하드코딩하는 것을 금지한다. 반드시 이 계약서에서 읽어서 사용한다.
+
+**예시**:
+```
+# auth-constants.md
+
+## 검증 상수
+PASSWORD_MIN_LENGTH: 8
+PASSWORD_MAX_LENGTH: 128
+EMAIL_MAX_LENGTH: 254
+
+## Rate Limit
+SIGNUP_RATE_LIMIT: 5회 / IP / 분
+LOGIN_RATE_LIMIT: 10회 / IP / 분
+RATE_LIMIT_STATUS: 429
+
+## 토큰
+ACCESS_TOKEN_EXPIRE_MINUTES: 30
+REFRESH_TOKEN_EXPIRE_DAYS: 7
+```
+
+**감지 신호**:
+- 숫자 리터럴이 2개 이상 파일에서 같은 의미로 반복될 때 (`min_length=6`, `minLength: 6`)
+- `MAX_`, `MIN_`, `LIMIT_`, `EXPIRE_`, `TIMEOUT_` 패턴의 변수
+- 프론트엔드 폼 validation과 백엔드 validator가 동시에 구현될 때
+
+**템플릿**: `references/constants.template.md`
+
+---
+
+### 7. Dependency Contract (의존성 계약)
+
+**용도**: 에이전트 스폰 전에 사용할 라이브러리와 버전을 확정하여 버전 충돌 방지
+
+**언제 생성**:
+- 여러 에이전트가 동일 언어/런타임을 공유할 때 (항상)
+- 라이브러리 간 호환성이 중요한 조합이 있을 때 (ORM + DB 드라이버, 암호화 라이브러리 등)
+- docker-compose, requirements.txt, package.json이 동시에 존재할 때
+
+**담는 내용**:
+- 핵심 라이브러리와 **고정 버전** (범위 지정 금지, 정확한 버전 핀)
+- 알려진 호환성 주의사항
+- 설정 파일 간 공유되는 환경변수 키와 값의 출처
+
+**핵심 규칙**: 에이전트는 이 계약서에 없는 라이브러리를 임의로 추가할 수 없다. 새 라이브러리가 필요하면 오케스트레이터에게 보고 후 계약서를 먼저 업데이트한다.
+
+**예시**:
+```
+# dependency-contract.md
+
+## Python 런타임
+python: "3.11"
+
+## 핵심 의존성 (버전 고정)
+fastapi: "0.111.0"
+sqlalchemy: "2.0.30"
+passlib[bcrypt]: "1.7.4"       ← bcrypt 직접 설치 금지, passlib 통해서만
+bcrypt: "4.0.1"                 ← passlib 1.7.4와 호환되는 버전
+psycopg2-binary: "2.9.9"
+pydantic: "2.7.1"
+
+## 호환성 주의
+# bcrypt 4.1+ 은 passlib 1.7.4와 비호환.
+# bcrypt는 반드시 4.0.x 이하를 사용한다.
+
+## 설정값 출처 (SSOT)
+# DB 자격증명의 진실 공급원: docker-compose.yml의 environment 섹션
+# config.py는 os.getenv()로만 읽고, 값을 직접 정의하지 않는다.
+DB_HOST: ${POSTGRES_HOST}
+DB_PORT: ${POSTGRES_PORT}
+DB_NAME: ${POSTGRES_DB}
+DB_USER: ${POSTGRES_USER}
+DB_PASSWORD: ${POSTGRES_PASSWORD}
+```
+
+**감지 신호**:
+- `requirements.txt`, `package.json`, `pubspec.yaml`, `go.mod` 중 2개 이상이 동시 수정될 때
+- 암호화 관련 라이브러리 (`bcrypt`, `passlib`, `cryptography`, `jwt`)
+- `docker-compose.yml`과 `config.py`(또는 `.env`)가 동시에 등장할 때
+- ORM + DB 드라이버 조합 (`sqlalchemy` + `psycopg2` / `prisma` + `pg`)
+
+**템플릿**: `references/dependency.template.md`
+
+---
+
 ## 계약서와 QA Tier 매핑
 
 계약서 유형은 Pulse QA 시스템의 검증 강도를 결정한다.
@@ -131,6 +231,8 @@ description: "인터페이스 계약 시스템. 에이전트 간 경계면에서
 | visual | Tier 3 (파괴자) | UI 회귀는 사용자 경험 전체에 영향 |
 | performance | Tier 3 (파괴자) | 성능 저하는 전체 서비스 품질 하락 |
 | security | Tier 3 (파괴자) | 보안 계약 위반은 데이터 유출로 직결 |
+| constants | Tier 0 (커버리지 스캔) | 하드코딩 값이 계약서와 다르면 즉시 불일치 |
+| dependency | Tier 0 (커버리지 스캔) | 버전 핀이 잠금 파일과 다르면 즉시 충돌 가능성 |
 
 ---
 
