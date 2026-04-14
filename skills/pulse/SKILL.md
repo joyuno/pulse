@@ -72,9 +72,13 @@ _workspace/
 
 ### 2. EXPLORE
 
+세부 절차: `references/explore-protocol.md` 참조. 요약:
+
 - 방법이 2개 이상이고 트레이드오프 불명확 시 분신술 패턴 적용. 명확하면 건너뜀.
 - **EXPLORE 에이전트도 병렬 3개 제한에 포함된다.** BUILD와 합산 최대 3개.
-- 탐색 결과는 파일로 저장. 최대 3회 탐색 후에도 미결 시 사용자에게 판단 요청.
+- 결과는 `_workspace/pulse-N/explore-{방향명}-result.md` 형식으로 저장.
+- 전체 탐색 완료 후 `explore-synthesis.md` 작성. BUILD는 이 파일을 읽고 시작.
+- 최대 3회 탐색 후에도 미결 시 사용자에게 판단 요청.
 
 ---
 
